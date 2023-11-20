@@ -1,0 +1,37 @@
+name: Deploy api
+
+on:
+  push:
+    branches: 'main'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+      - name: Deploy with rsync
+        run: | 
+          rsync -avz -e 'ssh -p ${{ secrets.SSH_PORT }} -o "StrictHostKeyChecking no"' * ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/mensapi/code
+
+      - name: Set up and restart api
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/mensapi/code
+            docker rm -f mensapi
+            docker build -t mensapi .
+            docker run -d --restart always --name mensapi mensapi

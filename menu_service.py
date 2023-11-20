@@ -24,7 +24,7 @@ class MenuService():
 
         soup = BeautifulSoup(data, features="html.parser")
         table = soup.find('table', attrs={'class': 'speiseplan-table'})
-        rows = table.find_all('tr:not(.wahlmenu)')
+        rows = table.select('tr:not(.wahlmenu)')
         text_regex = re.compile('[^a-zA-Z]')
         price_regex = re.compile('[^0-9,]')
 
