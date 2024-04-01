@@ -2,6 +2,9 @@
 
 FROM python:3.10-slim-buster
 
+# Install curl for Docker healthcheck
+RUN apt-get update && apt-get install curl -y
+
 # Set working directory
 WORKDIR /app
 
