@@ -24,11 +24,16 @@ class MenuService():
 
         soup = BeautifulSoup(data, features="html.parser")
         table = soup.find('table', attrs={'class': 'speiseplan-table'})
+
+        if not table:
+            return menu
+
         rows = table.select('tr:not(.wahlmenu)')
+
         text_regex = re.compile('[^a-zA-Z]')
         price_regex = re.compile('[^0-9,]')
 
-        for row in rows:            
+        for row in rows:
             headline = row.find(
                 "td", attrs={'class': "speiseplan-table-menu-headline"})
 
